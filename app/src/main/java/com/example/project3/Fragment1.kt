@@ -1,5 +1,7 @@
 package com.example.project3
 
+import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,14 +9,17 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import net.objecthunter.exp4j.ExpressionBuilder
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
+private const val ARG_RESULT = "results"
 
 /**
  * A simple [Fragment] subclass.
@@ -25,7 +30,9 @@ class Fragment1 : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    private var results: Boolean? = false
 
+    val args: Fragment1Args by navArgs()
     override fun onCreate(savedInstanceState: Bundle?) {
         /**
          * Overriding the onCreate() to accommodate the values save instance states and replaces any
@@ -58,6 +65,8 @@ class Fragment1 : Fragment() {
         return inflater.inflate(R.layout.fragment_1, container, false)
     }
 
+
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         /**
          * Overriding the onViewCreate() to direct Fragment1 information that is collected through the
@@ -76,10 +85,24 @@ class Fragment1 : Fragment() {
         var type = ""
         var numOfQs = 1
 
-        // lists for storing the questions and expected answers asked/recieved to/by the user
+        // lists for storing the questions and expected answers asked/received to/by the user
         var equationList = mutableListOf<String>()
         var answerList = mutableListOf<String>()
 
+        val result = args.result
+        val beenToTwo = args.beenToTwo
+        val message = view.findViewById<TextView>(R.id.Message)
+        if(beenToTwo) {
+            if (!result) {
+                message.text =
+                    "You got ${args.numCorrect} out of ${args.numOfQs} correct in ${args.oper}. You need to practice more!"
+                message.setTextColor(Color.RED)
+            } else {
+                message.text =
+                    "You got ${args.numCorrect} out of ${args.numOfQs} correct in ${args.oper}. Good Work!"
+                message.setTextColor(Color.GRAY)
+            }
+        }
         // determines which difficulty level was selected from the radio button based on id then passed to fragment 2
         val dif = view.findViewById<RadioGroup>(R.id.difficulties)
         dif.setOnCheckedChangeListener { _, checkedId ->
@@ -131,7 +154,7 @@ class Fragment1 : Fragment() {
                 }
                 val bundle = Bundle()
                 val action = Fragment1Directions.actionFragment1ToFragment2(ArrayList(equationList).toTypedArray(),ArrayList(answerList).toTypedArray()
-                , numOfQs, type)
+                    , numOfQs, type)
                 findNavController().navigate(action)
 
 
@@ -144,7 +167,7 @@ class Fragment1 : Fragment() {
                         (1..25).random()
                     }
                     else{
-                         (0..25).random()
+                        (0..25).random()
                     }
                     equationList.add("$num1$type$num2")
                     answerList.add(ExpressionBuilder("$num1$type$num2").build().evaluate().toString())

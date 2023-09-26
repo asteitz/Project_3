@@ -9,20 +9,33 @@
         <action
             android:id="@+id/action_fragment1_to_fragment2"
             app:destination="@id/fragment2" />
-
-
+        <argument android:name="result"
+            app:argType="boolean"
+            android:defaultValue="true"
+            />
+        <argument android:name="numCorrect"
+            app:argType="string"
+            android:defaultValue=""/>
+        <argument android:name="numOfQs"
+            app:argType="string"
+            android:defaultValue=""/>
+        <argument android:name="oper"
+            app:argType="string"
+            android:defaultValue=""/>
+        <argument android:name="beenToTwo"
+            app:argType="boolean"
+            android:defaultValue="false"/>
     </fragment>
+
     <fragment
         android:id="@+id/fragment2"
         android:name="com.example.project3.Fragment2">
         <action
-            android:id="@+id/action_fragment2_to_fragment3"
-            app:destination="@id/fragment3" />
-
+            android:id="@+id/action_fragment2_to_fragment1"
+            app:destination="@id/fragment1" />
 
         <argument android:name="eqs"
-            app:argType="string[]"
-            />
+            app:argType="string[]"/>
         <argument android:name="ans"
             app:argType="string[]" />
         <argument android:name="numofQs"
@@ -30,14 +43,8 @@
         <argument android:name="type"
             app:argType="string"
             />
+
     </fragment>
-    <fragment
-        android:id="@+id/fragment3"
-        android:name="com.example.project3.Fragment3">
-        <action
-            android:id="@+id/action_fragment3_to_fragment1"
-            app:destination="@id/fragment1" />
-        <argument android:name="finalScore"
-            app:argType="string" />
-    </fragment>
+
+
 </navigation>

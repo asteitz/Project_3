@@ -1,5 +1,6 @@
 package com.example.project3
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import kotlin.math.round
@@ -28,6 +30,7 @@ class Fragment2 : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    public var precentage: Boolean? = false
     val args: Fragment2Args by navArgs()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,13 +61,21 @@ class Fragment2 : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // instanciation of the lists used to build up the expected and user given outputs
+        /**
+         * A simple [view] subclass.
+         * Use the [onViewCreated] method to assign vlaues to buttons and determine the displayed
+         * message, symbols, and values
+         *
+         */
+        // instantiation of the lists used to build up the expected and user given outputs
         super.onViewCreated(view, savedInstanceState)
         var eqs = ArrayList(args.eqs.toList().subList(1, args.eqs.size))
         var ans = ArrayList(args.ans.toList())
         val numOfQs = args.numofQs
         var numCorrect = 0
         val buttonDone = view.findViewById<Button>(R.id.buttonDone)
+        var oper = args.type
+        var result = false
         buttonDone.setOnClickListener {
             // finds the answer and determines if it matches the expected response (rounding is used in division)
             if (ans!!.isNotEmpty()) {
@@ -73,6 +84,16 @@ class Fragment2 : Fragment() {
                 val correctAnswer = round(ans!!.get(0).toDouble() * 100) / 100
                 if (userAnswer == correctAnswer) {
                     numCorrect++
+                    val mediaPlayer = MediaPlayer.create(context, R.raw.correct_ans)
+                    mediaPlayer.start() // no need to call prepare(); create() does that for you
+                    result = numCorrect / numOfQs > 0.8
+                    Toast.makeText(requireContext(), "Great job, I love you!", Toast.LENGTH_SHORT).show()
+                }
+                else {
+                    result = numCorrect / numOfQs > 0.8
+                    val mediaPlayer = MediaPlayer.create(context, R.raw.wrong_ans)
+                    mediaPlayer.start()
+                    Toast.makeText(requireContext(), "Bad job, I hate you!", Toast.LENGTH_SHORT).show()
                 }
                 userInput.setText("")
                 userInput.hint = "Your Answer..."
@@ -83,17 +104,37 @@ class Fragment2 : Fragment() {
                     val operView = view.findViewById<TextView>(R.id.operatorTextView)
                     val num2 = view.findViewById<TextView>(R.id.number2TextView)
                     val eqString = eqs!!.get(0)
-                    val oper = args.type
                     val operLoc = eqString.indexOf(oper)
-                    num1.text = eqString.subSequence(0,operLoc).toString()
+                    num1.text = eqString.subSequence(0, operLoc).toString()
                     operView.text = eqString[operLoc].toString()
                     num2.text = eqString.subSequence(operLoc + 1, eqString.length).toString()
                     eqs!!.removeAt(0)
 
                 }
-                // passes the score info from fragment 2 -> fragment 3
-                else{
-                    val action = Fragment2Directions.actionFragment2ToFragment3("You got $numCorrect out of $numOfQs")
+                // passes the score info from fragment 2 -> fragment 1
+                else {
+                    if(oper == "+"){
+                        oper = "Addition"
+                    }
+                    else if(oper == "-"){
+                        oper = "Subtraction"
+                    }
+                    else if(oper == "*"){
+                        oper = "Multiplication"
+                    }
+
+                    else{
+                        oper = "Division"
+                    }
+
+                    // new ! passes the information from frag 1 -> frag 2 with the result of > or < 80% accuracy
+                    val action = Fragment2Directions.actionFragment2ToFragment1(
+                        result,
+                        "$numCorrect",
+                        "$numOfQs",
+                        "$oper",
+                        true
+                    )
                     findNavController().navigate(action)
                 }
             }
